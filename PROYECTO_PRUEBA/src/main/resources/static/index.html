@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión de Archivos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .archivo-item {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        button {
+            margin: 5px;
+            padding: 8px 15px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<h2>Subir Archivo</h2>
+<input type="file" id="fileInput">
+<button onclick="subirArchivo()">Subir</button>
+<div id="mensajeSubida"></div>
+
+<h2>Archivos Guardados</h2>
+<button onclick="listarArchivos()">Refrescar Lista</button>
+<div id="listaArchivos"></div>
+
+<script>
+    const API_URL = 'http://localhost:8080/api/archivos';
+
+    // Subir archivo
+    async function subirArchivo() {
+        const fileInput = document.getElementById('fileInput');
+        const file = fileInput.files[0];
+        const mensajeDiv = document.getElementById('mensajeSubida');
+
+        if (!file) {
+            mensajeDiv.innerHTML = '<p style="color: red;">Por favor selecciona un archivo</p>';
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        mensajeDiv.innerHTML = '<p>Subiendo archivo...</p>';
+
+        try {
+            const response = await fetch(`${API_URL}/subir`, {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                mensajeDiv.innerHTML = `<p style="color: green;">${data.mensaje} - ID: ${data.id}</p>`;
+                fileInput.value = ''; // Limpiar input
+                listarArchivos(); // Actualizar lista
+            } else {
+                mensajeDiv.innerHTML = `<p style="color: red;">Error: ${data.error}</p>`;
+            }
+        } catch (error) {
+            console.error('Error completo:', error);
+            mensajeDiv.innerHTML = `<p style="color: red;">Error de conexión: ${error.message}</p>`;
+        }
+    }
+
+    // Listar archivos
+    async function listarArchivos() {
+        const lista = document.getElementById('listaArchivos');
+        lista.innerHTML = '<p>Cargando archivos...</p>';
+
+        try {
+            const response = await fetch(`${API_URL}/listar`);
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const archivos = await response.json();
+
+            console.log('Archivos recibidos:', archivos);
+
+            if (archivos.length === 0) {
+                lista.innerHTML = '<p>No hay archivos guardados</p>';
+                return;
+            }
+
+            lista.innerHTML = '';
+
+            archivos.forEach(archivo => {
+                const div = document.createElement('div');
+                div.className = 'archivo-item';
+                div.innerHTML = `
+                    <p><strong>Nombre:</strong> ${archivo.nombreOriginal || 'Sin nombre'}</p>
+                    <p><strong>Tamaño:</strong> ${formatBytes(archivo.tamano)}</p>
+                    <p><strong>Tipo:</strong> ${archivo.tipoContenido || 'Desconocido'}</p>
+                    <p><strong>Fecha:</strong> ${new Date(archivo.fechaSubida).toLocaleString()}</p>
+                    <button onclick="descargarArchivo(${archivo.id}, '${archivo.nombreOriginal}')">
+                        Descargar
+                    </button>
+                    <button onclick="eliminarArchivo(${archivo.id})" style="background-color: #ff4444; color: white;">
+                        Eliminar
+                    </button>
+                `;
+                lista.appendChild(div);
+            });
+        } catch (error) {
+            console.error('Error al listar:', error);
+            lista.innerHTML = `<p style="color: red;">Error al cargar archivos: ${error.message}</p>`;
+        }
+    }
+
+    // Descargar archivo
+    function descargarArchivo(id, nombre) {
+        window.open(`${API_URL}/descargar/${id}`, '_blank');
+    }
+
+    // Eliminar archivo
+    async function eliminarArchivo(id) {
+        if (!confirm('¿Estás seguro de eliminar este archivo?')) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`${API_URL}/${id}`, {
+                method: 'DELETE'
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                alert(data.mensaje);
+                listarArchivos();
+            } else {
+                alert('Error: ' + data.error);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error al eliminar el archivo');
+        }
+    }
+
+    // Formatear bytes
+    function formatBytes(bytes, decimals = 2) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const dm = decimals < 0 ? 0 : decimals;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+    }
+
+    // Cargar lista al iniciar
+    window.onload = function() {
+        listarArchivos();
+    };
+</script>
+</body>
+</html>
