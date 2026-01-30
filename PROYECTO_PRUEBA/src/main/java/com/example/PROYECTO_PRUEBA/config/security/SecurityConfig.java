@@ -1,4 +1,4 @@
-package com.example.PROYECTO_PRUEBA.config.security;
+package com.example.PROYECTO_PRUEBA.config;
 
 import com.example.PROYECTO_PRUEBA.config.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
@@ -41,8 +41,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
 
                         // 🔒 SOLO ADMIN puede acceder a usuarios y monedas
-                        .requestMatchers("/api/usuarios/**").hasRole("admin")
-                        .requestMatchers("/api/moneda/**").hasRole("admin")
+                        .requestMatchers("/api/usuarios/**").hasRole("ROLE_admin")
+                        .requestMatchers("/api/moneda/**").hasRole("ROLE_admin")
 
                         // ✅ Facturas, clientes y productos: cualquier usuario autenticado
                         .requestMatchers("/api/facturas/**").authenticated()
