@@ -1,6 +1,6 @@
-package com.example.PROYECTO_PRUEBA.config;
+package com.example.PROYECTO_PRUEBA.config.security;
 
-import com.example.PROYECTO_PRUEBA.config.JwtAuthenticationFilter;
+import com.example.PROYECTO_PRUEBA.config.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -41,8 +41,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
 
                         // 🔒 SOLO ADMIN puede acceder a usuarios y monedas
-                        .requestMatchers("/api/usuarios/**").hasRole("ROLE_admin")
-                        .requestMatchers("/api/moneda/**").hasRole("ROLE_admin")
+                        .requestMatchers("/api/usuarios/**").hasRole("admin")
+                        .requestMatchers("/api/moneda/**").hasRole("admin")
 
                         // ✅ Facturas, clientes y productos: cualquier usuario autenticado
                         .requestMatchers("/api/facturas/**").authenticated()

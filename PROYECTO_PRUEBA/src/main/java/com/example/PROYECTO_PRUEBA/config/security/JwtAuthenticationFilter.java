@@ -1,5 +1,4 @@
-package com.example.PROYECTO_PRUEBA.config;
-
+package com.example.PROYECTO_PRUEBA.config.security;
 import com.example.PROYECTO_PRUEBA.config.security.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
