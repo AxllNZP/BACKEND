@@ -15,7 +15,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.core.userdetails.User;
 
-
 import java.util.Collections;
 
 @Configuration
@@ -30,21 +29,19 @@ public class ApplicationConfig {
                 .map(u -> new User(
                         u.getNombreUsuario(),
                         u.getClave(),
-                        Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + u.getRol().name()))
-                        //                                                     ↑ Esto agrega "ROLE_"
+                        // ✅ IMPORTANTE: Agregamos "ROLE_" aquí
+                        // Entonces en SecurityConfig usamos solo "ADMIN" o "VENDEDOR"
+                        Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + u.getRol().name().toUpperCase()))
                 ))
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + username));
     }
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authProvider =
-                new DaoAuthenticationProvider(userDetailsService());
-
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(userDetailsService());
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
     }
-
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {

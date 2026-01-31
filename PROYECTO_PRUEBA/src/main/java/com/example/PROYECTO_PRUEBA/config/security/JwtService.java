@@ -36,14 +36,14 @@ public class JwtService {
     }
 
     /**
-     * 🔥 MÉTODO PRINCIPAL: Genera token CON INFORMACIÓN DEL ROL
-     * Este método ahora recibe el Usuario completo para extraer toda la info necesaria
+     * ✅ GENERA TOKEN CON ROL DEL USUARIO
      */
     public String generateToken(UserDetails userDetails, Usuario usuario) {
         Map<String, Object> extraClaims = new HashMap<>();
 
-        // 🔑 CLAVE: Agregamos el ROL al payload del JWT
-        extraClaims.put("rol", usuario.getRol().name());
+        // ✅ AGREGAR ROL SIN "ROLE_" (lo agregamos en ApplicationConfig)
+        // El enum es "admin" o "vendedor", lo guardamos en minúsculas
+        extraClaims.put("rol", usuario.getRol().name().toLowerCase());
         extraClaims.put("nombreCompleto", usuario.getNombreCompleto());
         extraClaims.put("email", usuario.getEmail());
         extraClaims.put("idUsuario", usuario.getIdUsuario());

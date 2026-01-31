@@ -19,7 +19,7 @@ import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity // 🔥 ESTO HABILITA @PreAuthorize en los controladores
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -29,53 +29,56 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // ⚠️ IMPORTANTE: Habilitar CORS ANTES de cualquier otra configuración
+                // ✅ CORS configurado PRIMERO
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
-                // Deshabilitar CSRF (no es necesario para APIs REST con JWT)
+                // ✅ CSRF deshabilitado
                 .csrf(csrf -> csrf.disable())
 
-                // Configurar autorización de endpoints
+                // ✅ AUTORIZACIÓN CORREGIDA
                 .authorizeHttpRequests(auth -> auth
-                        // 🔓 Endpoints públicos (sin autenticación)
+                        // 🔓 Endpoints públicos
                         .requestMatchers("/api/auth/**").permitAll()
 
-                        // 🔒 SOLO ADMIN puede acceder a usuarios y monedas
-                        .requestMatchers("/api/usuarios/**").hasRole("admin")
-                        .requestMatchers("/api/moneda/**").hasRole("admin")
+                        // 🔒 USUARIOS y MONEDAS: SOLO ADMIN
+                        // ⚠️ IMPORTANTE: Como agregamos "ROLE_" en ApplicationConfig,
+                        // aquí usamos "ADMIN" sin el prefijo
+                        .requestMatchers("/api/usuarios/**").hasRole("ADMIN")
+                        .requestMatchers("/api/moneda/**").hasRole("ADMIN")
 
-                        // ✅ Facturas, clientes y productos: cualquier usuario autenticado
+                        // ✅ FACTURAS, CLIENTES, PRODUCTOS: Cualquier usuario autenticado
                         .requestMatchers("/api/facturas/**").authenticated()
                         .requestMatchers("/api/clientes/**").authenticated()
                         .requestMatchers("/api/productos/**").authenticated()
+                        .requestMatchers("/api/formapago/**").authenticated()
+                        .requestMatchers("/api/archivos/**").authenticated()
 
                         // 🔐 Todo lo demás requiere autenticación
                         .anyRequest().authenticated()
                 )
 
-                // Configurar sesiones como STATELESS (sin sesiones, usando JWT)
+                // ✅ Sesiones STATELESS (JWT)
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
 
-                // Agregar el proveedor de autenticación
+                // ✅ Proveedor de autenticación
                 .authenticationProvider(authenticationProvider)
 
-                // Agregar el filtro JWT antes del filtro de autenticación de Spring
+                // ✅ Filtro JWT
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
     /**
-     * Configuración de CORS para Spring Security
-     * IMPORTANTE: Esta configuración debe coincidir con CorsConfig.java
+     * ✅ CONFIGURACIÓN CORS ÚNICA Y CENTRALIZADA
      */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // Permitir peticiones desde Angular
+        // Permitir origen de Angular
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200"));
 
         // Permitir todos los métodos HTTP
@@ -84,7 +87,7 @@ public class SecurityConfig {
         // Permitir todos los headers
         configuration.setAllowedHeaders(Arrays.asList("*"));
 
-        // Exponer el header Authorization
+        // Exponer Authorization header
         configuration.setExposedHeaders(Arrays.asList("Authorization"));
 
         // Permitir credenciales
