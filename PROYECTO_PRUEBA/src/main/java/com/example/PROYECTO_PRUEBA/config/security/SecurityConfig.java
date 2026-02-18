@@ -43,12 +43,12 @@ public class SecurityConfig {
                         // 🔒 USUARIOS y MONEDAS: SOLO ADMIN
                         // ⚠️ IMPORTANTE: Como agregamos "ROLE_" en ApplicationConfig,
                         // aquí usamos "ADMIN" sin el prefijo
-                        .requestMatchers("/api/usuarios/**").hasRole("ADMIN")
-                        .requestMatchers("/api/moneda/**").hasRole("ADMIN")
+                        .requestMatchers("/api/usuarios/**").authenticated()
+                        .requestMatchers("/api/moneda/**").authenticated()
 
                         // ✅ FACTURAS, CLIENTES, PRODUCTOS: Cualquier usuario autenticado
                         .requestMatchers("/api/facturas/**").authenticated()
-                        .requestMatchers("/api/clientes/**").authenticated()
+                        .requestMatchers("/api/clientes/**").permitAll()
                         .requestMatchers("/api/productos/**").authenticated()
                         .requestMatchers("/api/formapago/**").authenticated()
                         .requestMatchers("/api/archivos/**").authenticated()

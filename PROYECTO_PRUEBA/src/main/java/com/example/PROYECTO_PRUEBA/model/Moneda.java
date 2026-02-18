@@ -13,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @ToString
 @Table(name = "MONEDA")
-public class Moneda {
+public class  Moneda {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -2,12 +2,17 @@ package com.example.PROYECTO_PRUEBA.controller;
 
 import com.example.PROYECTO_PRUEBA.dto.FacturaRequestDTO;
 import com.example.PROYECTO_PRUEBA.dto.FacturaResponseDTO;
+import com.example.PROYECTO_PRUEBA.model.Factura;
 import com.example.PROYECTO_PRUEBA.service.IFacturaService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -101,4 +106,88 @@ public class FacturaController {
         List<FacturaResponseDTO> facturas = facturaService.listarFacturasPorUsuario(idUsuario);
         return ResponseEntity.ok(facturas);
     }
+
+    @GetMapping("/{id}/pdf")
+    public ResponseEntity<byte[]> descargarPdf(@PathVariable Long id) {
+
+        byte[] pdf = facturaService.generarPdf(id);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=factura.pdf")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdf);
+    }
+
+
+    @GetMapping("/{id}/excel")
+    public ResponseEntity<byte[]> descargarExcel(@PathVariable Long id) {
+
+        byte[] excel = facturaService.generarExcel(id);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=factura.xlsx")
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(excel);
+    }
+
+
+
+    //REPORTE CLIENTES/////////////////////////////////////////
+    @GetMapping("/cliente/{idCliente}/reporte")
+    public ResponseEntity<List<Factura>> obtenerReporteFacturas(
+            @PathVariable Long idCliente,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+            LocalDateTime fechaInicio,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+            LocalDateTime fechaFin
+    ) {
+
+        List<Factura> facturas = facturaService
+                .obtenerReporteFacturasPorClienteYFecha(
+                        idCliente,
+                        fechaInicio,
+                        fechaFin
+                );
+
+        return ResponseEntity.ok(facturas);
+    }
+    @GetMapping("/cliente/{idCliente}/reporte/pdf")
+    public ResponseEntity<byte[]> descargarReportePdf(
+            @PathVariable Long idCliente,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+            LocalDateTime fechaInicio,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+            LocalDateTime fechaFin
+    ) {
+
+        byte[] pdf = facturaService
+                .generarReporteClientePdf(idCliente, fechaInicio, fechaFin);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=reporte_cliente.pdf")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdf);
+    }
+
+
+    @GetMapping("/cliente/{idCliente}/reporte/excel")
+    public ResponseEntity<byte[]> descargarReporteExcel(
+            @PathVariable Long idCliente,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+            LocalDateTime fechaInicio,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+            LocalDateTime fechaFin
+    ) {
+
+        byte[] excel = facturaService
+                .generarReporteClienteExcel(idCliente, fechaInicio, fechaFin);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=reporte_cliente.xlsx")
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(excel);
+    }
+
 }

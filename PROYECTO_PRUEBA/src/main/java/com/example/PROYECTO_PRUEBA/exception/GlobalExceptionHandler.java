@@ -39,11 +39,14 @@ public class GlobalExceptionHandler {
         body.put("timestamp", LocalDateTime.now());
         body.put("status", 500);
         body.put("error", "Internal Server Error");
-        body.put("message", "Ocurrió un error inesperado");
+        body.put("message", ex.getMessage()); // 🔥 MOSTRAR EL ERROR REAL
         body.put("path", request.getRequestURI());
+
+        ex.printStackTrace(); // 🔥 OPCIONAL pero recomendado para consola
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
     }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Object> handleValidationErrors(
             MethodArgumentNotValidException ex,

@@ -2,7 +2,9 @@ package com.example.PROYECTO_PRUEBA.service;
 
 import com.example.PROYECTO_PRUEBA.dto.FacturaRequestDTO;
 import com.example.PROYECTO_PRUEBA.dto.FacturaResponseDTO;
+import com.example.PROYECTO_PRUEBA.model.Factura;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -44,4 +46,22 @@ public interface IFacturaService {
      * @return Lista de facturas del vendedor
      */
     List<FacturaResponseDTO> listarFacturasPorUsuario(Long idUsuario);
+
+
+   // REPORTE FACTURA PDF/EXCEL
+    byte[] generarPdf(Long idFactura);
+    byte[] generarExcel(Long idFactura);
+
+
+
+    //REPOTES CLIENTES
+    List<Factura> obtenerReporteFacturasPorClienteYFecha(
+            Long idCliente,
+            LocalDateTime fechaInicio,
+            LocalDateTime fechaFin
+    );
+    byte[] generarReporteClientePdf(Long idCliente, LocalDateTime fechaInicio, LocalDateTime fechaFin);
+
+    byte[] generarReporteClienteExcel(Long idCliente, LocalDateTime fechaInicio, LocalDateTime fechaFin);
+
 }
