@@ -17,7 +17,10 @@ public class CorsConfig {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
 
         // Permitir peticiones desde Angular (localhost:4200)
-        corsConfiguration.setAllowedOriginPatterns(Arrays.asList("*"));
+        corsConfiguration.setAllowedOrigins(Arrays.asList(
+                "http://localhost:4200",
+                "https://frontend-practicas-production.up.railway.app"
+        ));
 
         // Permitir todos los métodos HTTP (GET, POST, PUT, DELETE, etc.)
         corsConfiguration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
